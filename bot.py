@@ -50,12 +50,10 @@ def show_matches(m):
 
 def handle_event_matches(m):
     choosed_teams = choosed[m.text]
-    print(choosed_teams)
     global dota_event
     if dota_event is not None:
         if isinstance(dota_event, parse.DotaEvent):
             match_list = dota_event.get_filtered_matches(choosed_teams)
-    print(match_list)
     temp_str = ''
     for match in match_list:
         temp_str += f'{match}\n'
