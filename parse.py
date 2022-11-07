@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import re
 import asyncio
 from aiohttp import ClientSession
-
+from datetime import datetime, timedelta
 
 TIMEZONE_OFFSET = 3
 URL_GROUPSTAGE_GAMES_1 = "https://liquipedia.net/dota2/The_International/2022/Group_Stage_Day_1-2"
@@ -19,6 +19,8 @@ class DotaEvent:
         self.__playoff_url = playoff_url
         self.__event_name = None
         self.__participants = None
+        self.__playoff_matches = None
+        self.__groupstage_matches = None
         asyncio.run(self.__async_init())
         
     #public
@@ -49,14 +51,20 @@ class DotaEvent:
             await playoff_task
 
     def __filter_matches(self, team_names):
-        out_list = list()
+        group_list = 'Group Stage Matches:\n'
+        playoff_list = 'Main Stage Matches:\n'
         for team in team_names:
             my_regex = r"(?<!\S)" + re.escape(team) + r"(?!\S)"
             for groupstage_matches in self.__groupstage_matches:
                 for match in self.__groupstage_matches[groupstage_matches]:
-                    if re.search(my_regex, match) and match not in out_list:
-                        out_list.append(match)
-        return out_list
+                    if re.search(my_regex, match) and match not in group_list:
+                        # group_list.append(match)
+                        group_list += f'{match}\n'
+            for match in self.__playoff_matches:
+                if re.search(my_regex, match) and match not in group_list:
+                    # playoff_list.append(match)   
+                    playoff_list += f'{match}\n'
+        return group_list, playoff_list
 
     async def __parse_overview(self):
         async with session['session'].get(self.__overview_url) as resp:
@@ -87,7 +95,7 @@ class DotaEvent:
             else:
                 temp_str += "TBD. "
             temp_str += str("Round: " + matches_raw[i].find('td', class_='Round').text + ". ")
-            temp_str += str("Start time: " + self.__timezoneHandler(matches_raw[i].find('span', class_='timer-object timer-object-datetime-only').text, 5)[:-4])
+            temp_str += str("Start time: " + self.__timezoneHandler(matches_raw[i].find('span', class_='timer-object timer-object-datetime-only').text, 5))
             out_list.append(temp_str)
         self.__playoff_matches = out_list
 
@@ -125,19 +133,24 @@ class DotaEvent:
                 if i % 2 == 0:
                     temp_str = team_names[i].a['title'] + ' vs '
                 else:
-                    temp_str += f"{team_names[i].a['title']} | Start time: {self.__timezoneHandler(start_times[i//4].text, -3)[:-4]}"
+                    temp_str += f"{team_names[i].a['title']} | Start time: {self.__timezoneHandler(start_times[i//4].text, -3)}"
                     out_list.append(temp_str)
         return out_list
 
-    def __timezoneHandler(self, datetime, timezone_offset):
-        new_time = int(re.search('[0-9]{2}:', datetime).group(0)[:-1]) + timezone_offset
-        time_index = datetime.find(re.search('[0-9]{2}:', datetime).group(0))
+    def __timezoneHandler(self, start_time, timezone_offset):
+        new_time = int(re.search('[0-9]{2}:', start_time).group(0)[:-1]) + timezone_offset
+        time_index = start_time.find(re.search('[0-9]{2}:', start_time).group(0))
         if new_time < 10:
             new_time = "0" + str(new_time)
         else:
             new_time = str(new_time)
-        datetime = datetime[:time_index] + new_time + datetime[time_index + 2:]
-        return datetime
+        start_time = (start_time[:time_index] + new_time + start_time[time_index + 2:])[:-4]
+        date_time = datetime.strptime(start_time, '%B %d, %Y - %H:%M')
+        if date_time < datetime.now():
+            start_time = start_time + ' \U00002714'
+        else:
+            start_time = start_time + ' \U0000274C'
+        return start_time
     
 
 def print_dict(dictionary): #console app testing

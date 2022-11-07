@@ -53,11 +53,9 @@ def handle_event_matches(m):
     global dota_event
     if dota_event is not None:
         if isinstance(dota_event, parse.DotaEvent):
-            match_list = dota_event.get_filtered_matches(choosed_teams)
-    temp_str = ''
-    for match in match_list:
-        temp_str += f'{match}\n'
-    bot.send_message(m.chat.id, temp_str)
+            groupstage_list, playoff_list = dota_event.get_filtered_matches(choosed_teams)
+    bot.send_message(m.chat.id, groupstage_list)
+    bot.send_message(m.chat.id, playoff_list)
 
 def handle_team_reset(m):
     choosed.pop(m.text)
