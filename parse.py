@@ -10,13 +10,21 @@ URL_GROUPSTAGE_GAMES_2 = "https://liquipedia.net/dota2/The_International/2022/Gr
 URL_OVERVIEW = "https://liquipedia.net/dota2/The_International/2022"
 URL_PLAYOFF = "https://liquipedia.net/dota2/The_International/2022/Main_Event"
 
+events_dict = {
+                'The International 2022':
+                    ['https://liquipedia.net/dota2/The_International/2022',
+                    ['https://liquipedia.net/dota2/The_International/2022/Group_Stage_Day_1-2', 
+                    'https://liquipedia.net/dota2/The_International/2022/Group_Stage_Day_3-4'],
+                    'https://liquipedia.net/dota2/The_International/2022/Main_Event']
+}
+
 session = {}
 
 class DotaEvent:
-    def __init__(self, overview_url, groupstage_urls, playoff_url):
-        self.__overview_url = overview_url
-        self.__groupstage_urls = groupstage_urls
-        self.__playoff_url = playoff_url
+    def __init__(self, event_name):
+        self.__overview_url = events_dict[event_name][0]
+        self.__groupstage_urls = events_dict[event_name][1]
+        self.__playoff_url = events_dict[event_name][2]
         self.__event_name = None
         self.__participants = None
         self.__playoff_matches = None
@@ -58,11 +66,9 @@ class DotaEvent:
             for groupstage_matches in self.__groupstage_matches:
                 for match in self.__groupstage_matches[groupstage_matches]:
                     if re.search(my_regex, match) and match not in group_list:
-                        # group_list.append(match)
                         group_list += f'{match}\n'
             for match in self.__playoff_matches:
                 if re.search(my_regex, match) and match not in group_list:
-                    # playoff_list.append(match)   
                     playoff_list += f'{match}\n'
         return group_list, playoff_list
 
@@ -110,7 +116,6 @@ class DotaEvent:
         self.__groupstage_matches = group_matches
 
     async def __parse_groupstage_day(self, url):
-        
         async with session['session'].get(url) as resp:
             r = await resp.text()
         soup = bs(r, "html.parser")

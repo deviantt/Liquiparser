@@ -78,7 +78,7 @@ def handle_event(m):
     if m.text in eventPool:
         bot.send_message(m.chat.id, f"You chose {m.text}. Please wait a few seconds")
         global dota_event
-        dota_event = parse.DotaEvent(parse.URL_OVERVIEW, [parse.URL_GROUPSTAGE_GAMES_1, parse.URL_GROUPSTAGE_GAMES_2], parse.URL_PLAYOFF)
+        dota_event = parse.DotaEvent(m.text)
         choosed[dota_event.get_event_name()] = list()
         handle_team(m, dota_event)
     else:
