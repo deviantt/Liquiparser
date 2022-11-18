@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-import parse
+from parse import DotaEvent
 import os
 
 
@@ -52,7 +52,7 @@ def handle_event_matches(m):
     choosed_teams = choosed[m.text]
     global dota_event
     if dota_event is not None:
-        if isinstance(dota_event, parse.DotaEvent):
+        if isinstance(dota_event, DotaEvent):
             groupstage_list, playoff_list = dota_event.get_filtered_matches(choosed_teams)
     bot.send_message(m.chat.id, groupstage_list)
     bot.send_message(m.chat.id, playoff_list)
@@ -78,7 +78,7 @@ def handle_event(m):
     if m.text in eventPool:
         bot.send_message(m.chat.id, f"You chose {m.text}. Please wait a few seconds")
         global dota_event
-        dota_event = parse.DotaEvent(m.text)
+        dota_event = DotaEvent(m.text)
         choosed[dota_event.get_event_name()] = list()
         handle_team(m, dota_event)
     else:
@@ -118,6 +118,4 @@ if __name__ == '__main__':
     bot.infinity_polling()
 
 # TODO admin account + method for adding an event
-# TODO save knownusers?
-# TODO database?
-# TODO store chosen patterns?
+# TODO save knownusers? database? store chosen patterns?

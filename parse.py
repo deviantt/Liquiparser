@@ -2,13 +2,9 @@ from bs4 import BeautifulSoup as bs
 import re
 import asyncio
 from aiohttp import ClientSession
-from datetime import datetime, timedelta
+from datetime import datetime
 
 TIMEZONE_OFFSET = 3
-URL_GROUPSTAGE_GAMES_1 = "https://liquipedia.net/dota2/The_International/2022/Group_Stage_Day_1-2"
-URL_GROUPSTAGE_GAMES_2 = "https://liquipedia.net/dota2/The_International/2022/Group_Stage_Day_3-4"
-URL_OVERVIEW = "https://liquipedia.net/dota2/The_International/2022"
-URL_PLAYOFF = "https://liquipedia.net/dota2/The_International/2022/Main_Event"
 
 events_dict = {
                 'The International 2022':
