@@ -1,2 +1,2 @@
 # Liquiparser
-First python scraping project with telebot
+First cringe python scraping project with telebot
